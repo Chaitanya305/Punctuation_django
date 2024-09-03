@@ -1,0 +1,21 @@
+name: Docker Image CI
+on:
+  push:
+    branches: [ "main" ]
+jobs:
+  docker_ci_job:
+    if: contains(github.event.head_commit.message, 'ci-deploy')
+    runs-on: ubuntu-latest
+    
+    steps:
+    
+    - name: checkout code
+      uses: actions/checkout@v4
+    - name: Logging to DockerHub
+      run: echo ${{ secrets.DOCKERHUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+    - name: Building Docker image
+      run: docker build . -t chaitanya305/punctuation_image:$GITHUB_RUN_NUMBER
+    - name: Pushing docker image
+      run: docker push chaitanya305/punctuation_image:$GITHUB_RUN_NUMBER
+    - name: cleaning
+      run: docker system prune -f 
